@@ -15,9 +15,16 @@ var version = Version {
 }
 
 type Game interface {
+	Tickable
+	render.Renderer
+
 	PreInit()
 	Init()
-	//PostInit()
+	PostInit()
+}
+
+type Tickable interface {
+	Tick()
 }
 
 var debug = false
@@ -44,12 +51,34 @@ func Init(game Game) {
 		}
 
 		game.Init()
+
+		logging.GetLogger().Log("launching main ticker...")
+
+		go mainTicker(game)
+
+		logging.GetLogger().Log("Finishing initialization!")
+
+		game.PostInit()
+
+		logging.GetLogger().Log("Finished initialization!")
 	})
+}
+
+func mainTicker(game Game) {
+	defer Shutdown()
+
+	for !window.ShouldClose() {
+		game.Tick()
+		game.Clear()
+		game.Draw()
+		window.SwapBuffers()
+		window.PollEvents()
+	}
 }
 
 func Shutdown() {
 	logging.GetLogger().Log("Shutting down Sakura...")
 
-	threading.ShutdownMainThread()
 	window.Shutdown()
+	threading.ShutdownMainThread()
 }

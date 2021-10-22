@@ -19,7 +19,7 @@ func NewSafeFunctionChannel(buffer int) *SafeFunctionChannel {
 	}
 }
 
-func (s SafeFunctionChannel) Close() {
+func (s *SafeFunctionChannel) Close() {
 	safeFunctionChannelLogger.Log("closing safe function channel")
 
 	if s.closed {
@@ -41,7 +41,7 @@ func (s SafeFunctionChannel) Close() {
 	}()
 }
 
-func (s SafeFunctionChannel) Offer(f func()) {
+func (s *SafeFunctionChannel) Offer(f func()) {
 	if s.closed {
 		return
 	}

@@ -9,7 +9,7 @@ type Version struct {
 	Snapshot bool
 }
 
-func (v Version) GetVersion() (result string) {
+func (v *Version) GetVersion() (result string) {
 	result = strconv.Itoa(v.Major) + "." + strconv.Itoa(v.Minor) + "." + strconv.Itoa(v.Patch)
 
 	if v.Snapshot {

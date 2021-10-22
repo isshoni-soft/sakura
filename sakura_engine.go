@@ -14,17 +14,23 @@ var version = Version {
 	Snapshot: debug,
 }
 
-type Game interface {
-	Tickable
-	render.Renderer
-
+type Initializable interface {
 	PreInit()
 	Init()
 	PostInit()
+
+	SetInitialized(initialized bool)
+	Initialized() bool
 }
 
 type Tickable interface {
 	Tick()
+}
+
+type Game interface {
+	Tickable
+	render.Renderer
+	Initializable
 }
 
 var debug = false

@@ -30,6 +30,35 @@ func Init() {
 	logger.Log("Initialized OpenGL v", GLVersion())
 }
 
+func DrawArrays(mode uint32, first int32, second int32) {
+	threading.RunMain(func() {
+		gl.DrawArrays(mode, first, second)
+	}, true)
+}
+
+func UseShaderProgram(program *ShaderProgram) {
+	threading.RunMain(func() {
+		gl.UseProgram(program.Id())
+	}, true)
+}
+
+func LinkShaderProgram(program *ShaderProgram) {
+	threading.RunMain(func() {
+		gl.AttachShader(program.Id(), program.FragmentShader().Id())
+		gl.AttachShader(program.Id(), program.VertexShader().Id())
+		gl.LinkProgram(program.Id())
+	}, true)
+}
+
+func CompileShader(shader *Shader) {
+	threading.RunMain(func() {
+		strs, _ := gl.Strs(shader.code...)
+
+		gl.ShaderSource(shader.Id(), 1, strs, nil)
+		gl.CompileShader(shader.Id())
+	}, true)
+}
+
 func VertexAttribPointer(index uint32, size int32, xtype uint32, normalized bool, stride int32, pointer unsafe.Pointer) {
 	threading.RunMain(func() {
 		gl.VertexAttribPointer(index, size, xtype, normalized, stride, pointer)

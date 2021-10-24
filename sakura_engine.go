@@ -10,7 +10,7 @@ import (
 var version = Version {
 	Major: 0,
 	Minor: 0,
-	Patch: 1,
+	Patch: 2,
 	Snapshot: debug,
 }
 

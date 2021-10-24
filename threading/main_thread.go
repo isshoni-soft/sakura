@@ -1,11 +1,12 @@
 package threading
 
 import (
+	"github.com/isshoni-soft/sakura/channel"
 	"github.com/isshoni-soft/sakura/logging"
 	"runtime"
 )
 
-var mainThreadCallQueue *SafeFunctionChannel
+var mainThreadCallQueue *channel.SafeFunctionChannel
 
 var mainThreadLogger = logging.NewLogger("main-thread", 10)
 
@@ -14,13 +15,13 @@ func init() {
 }
 
 func InitMainThread(cap int, run func()) {
-	mainThreadCallQueue = NewSafeFunctionChannel(cap)
+	mainThreadCallQueue = channel.NewSafeFunctionChannel(cap)
 
 	go run()
 
-	for f := range mainThreadCallQueue.channel {
+	mainThreadCallQueue.ForEach(func(f func()) {
 		f()
-	}
+	})
 }
 
 func RunMain(f func(), block ...bool) {
@@ -58,9 +59,9 @@ func RunMainResult(f func() interface {}) interface {} {
 func ShutdownMainThread() {
 	mainThreadLogger.Log("Shutting down main thread manager...")
 
-	mainThreadCallQueue.Close()
+	mainThreadCallQueue.WaitForClose()
 }
 
 func IsMainThreadRunning() bool {
-	return mainThreadCallQueue.closed
+	return mainThreadCallQueue.Closed()
 }

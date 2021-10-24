@@ -96,7 +96,7 @@ func logFileTick() {
 	f, err := os.Create(logFileName)
 
 	if os.IsNotExist(err) {
-		err = os.MkdirAll(logFileName, os.ModePerm)
+		err = os.MkdirAll(filepath.Dir(logFileName), os.ModePerm)
 
 		if err != nil {
 			panic(err)

@@ -15,7 +15,7 @@ var visible = false
 
 var window *glfw.Window
 
-var logger = roxxy.NewLogger("sakura|window")
+var logger = roxxy.NewLogger("sakura|window>")
 
 func Init() {
 	kirito.QueueBlocking(func() {

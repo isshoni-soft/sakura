@@ -7,7 +7,7 @@ import (
 	"unsafe"
 )
 
-var logger = roxxy.NewLogger("sakura|renderer")
+var logger = roxxy.NewLogger("sakura|renderer>")
 
 type Renderer interface {
 	Draw()

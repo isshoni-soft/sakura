@@ -8,12 +8,14 @@ import (
 	"github.com/isshoni-soft/sakura/window"
 )
 
-var logger = roxxy.NewLogger("sakura")
+var logger = roxxy.NewLogger("sakura>")
+
+var shutdownSignal = make(chan bool)
 
 var version = Version {
 	Major: 0,
 	Minor: 0,
-	Patch: 2,
+	Patch: 3,
 	Snapshot: debug,
 }
 
@@ -80,6 +82,8 @@ func Init(game Game) {
 		game.PostInit()
 
 		logger.Log("Finished initialization!")
+		logger.Log("Awaiting shutdown signal...")
+		<- shutdownSignal
 	})
 }
 
@@ -99,4 +103,5 @@ func Shutdown() {
 	logger.Log("Shutting down Sakura...")
 
 	window.Shutdown()
+	shutdownSignal <- true
 }

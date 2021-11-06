@@ -5,6 +5,7 @@ tasks:
     desc: Initializes the repo
     cmds:
       - git submodule init
+      - git submodule update
   push-submodules:
     run: once
     desc: Pushes submodules

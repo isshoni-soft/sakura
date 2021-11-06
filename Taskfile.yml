@@ -1,29 +1,49 @@
 version: '3'
 includes:
-  roxxy: ./roxxy/Taskfile.yml
-  kirito: ./kirito/Taskfile.yml
+  git: ./git-task/Taskfile.yml
 tasks:
+  exe-roxxy:
+    desc: executes a command in the roxxy directory
+    cmds:
+      - cd roxxy/
+      - "{{.CMD}}"
+      - cd ..
+  exe-kirito:
+    desc: executes a command in the roxxy directory
+    cmds:
+      - cd kirito/
+      - "{{.CMD}}"
+      - cd ..
   pull:
-    run: once
     desc: Pulls the repo and all submodules
     cmds:
-      - git pull
+      - task: git:pull
       - task: init-submodules
       - task: pull-submodules
   pull-submodules:
-    run: once
     desc: Pulls all submodules
     cmds:
-      - task: roxxy:pull
-      - task: kirito:pull
+      - task: exe-roxxy
+        vars: { CMD: task git:pull }
+      - task: exe-kirito
+        vars: { CMD: task git:pull }
   push-submodules:
-    run: once
+    interactive: true
     desc: Pushes all submodules
     cmds:
-      - cd roxxy && git push && cd ..
-      - cd hange && git push && cd ..
-  init-submodules:
+      - task: exe-roxxy
+        vars: { CMD: task git:commit-all }
+      - task: exe-roxxy
+        vars: { CMD: task git:push }
+      - task: exe-kirito
+        vars: { CMD: task git:commit-all }
+      - task: exe-kirito
+        vars: { CMD: task git:push }
+      - git reset
+      - git commit "roxxy" "kirito" "[TASKFILE]: update submodules"
+  init:
     run: once
-    desc: Runs appropriate git command to initialze submodules
+    desc: Initializes the workspace
     cmds:
       - git submodule init
+      - task: pull

@@ -4,3 +4,6 @@
 [submodule "roxxy"]
 	path = roxxy
 	url = git@github.com:isshoni-soft/roxxy.git
+[submodule "git-task"]
+	path = git-task
+	url = git@github.com:isshoni-soft/git-task.git

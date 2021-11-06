@@ -1,49 +1,18 @@
 version: '3'
-includes:
-  git: ./git-task/Taskfile.yml
 tasks:
-  exe-roxxy:
-    desc: executes a command in the roxxy directory
-    cmds:
-      - cd roxxy/
-      - "{{.CMD}}"
-      - cd ..
-  exe-kirito:
-    desc: executes a command in the roxxy directory
-    cmds:
-      - cd kirito/
-      - "{{.CMD}}"
-      - cd ..
-  pull:
-    desc: Pulls the repo and all submodules
-    cmds:
-      - task: git:pull
-      - task: init-submodules
-      - task: pull-submodules
-  pull-submodules:
-    desc: Pulls all submodules
-    cmds:
-      - task: exe-roxxy
-        vars: { CMD: task git:pull }
-      - task: exe-kirito
-        vars: { CMD: task git:pull }
-  push-submodules:
-    interactive: true
-    desc: Pushes all submodules
-    cmds:
-      - task: exe-roxxy
-        vars: { CMD: task git:commit-all }
-      - task: exe-roxxy
-        vars: { CMD: task git:push }
-      - task: exe-kirito
-        vars: { CMD: task git:commit-all }
-      - task: exe-kirito
-        vars: { CMD: task git:push }
-      - git reset
-      - git commit "roxxy" "kirito" "[TASKFILE]: update submodules"
   init:
     run: once
-    desc: Initializes the workspace
+    desc: Initializes the repo
     cmds:
       - git submodule init
-      - task: pull
+  push-submodules:
+    run: once
+    desc: Pushes submodules
+    cmds:
+      - ./scripts/push-submodules.sh
+      - git reset
+      - git add "kirito"
+      - git add "roxxy"
+      - cmd: git commit -m "[TASKFILE] update submodules"
+        ignore_error: true
+      - git push

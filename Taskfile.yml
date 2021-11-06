@@ -16,8 +16,6 @@ tasks:
     cmds:
       - task: roxxy:pull
       - task: kirito:pull
-      - git reset
-      - git commit "./roxxy/" "./kirito/" -m "[TASKFILE]: update submodules"
   push-submodules:
     run: once
     desc: Pushes all submodules

@@ -2,12 +2,12 @@ package render
 
 import (
 	"github.com/go-gl/gl/v4.6-core/gl"
-	"github.com/isshoni-soft/sakura/logging"
-	"github.com/isshoni-soft/sakura/threading"
+	"github.com/isshoni-soft/kirito"
+	"github.com/isshoni-soft/roxxy"
 	"unsafe"
 )
 
-var logger = logging.NewLogger("renderer", 20)
+var logger = roxxy.NewLogger("sakura|renderer")
 
 type Renderer interface {
 	Draw()
@@ -19,122 +19,122 @@ type Renderable interface {
 }
 
 func Init() {
-	threading.RunMain(func() {
+	kirito.QueueBlocking(func() {
 		logger.Log("Initializing renderer...")
 
 		if err := gl.Init(); err != nil {
 			panic(err)
 		}
-	}, true)
+	})
 
 	logger.Log("Initialized OpenGL v", GLVersion())
 }
 
 func DrawArrays(mode uint32, first int32, second int32) {
-	threading.RunMain(func() {
+	kirito.QueueBlocking(func() {
 		gl.DrawArrays(mode, first, second)
-	}, true)
+	})
 }
 
 func UseShaderProgram(program *ShaderProgram) {
-	threading.RunMain(func() {
+	kirito.QueueBlocking(func() {
 		gl.UseProgram(program.Id())
-	}, true)
+	})
 }
 
 func LinkShaderProgram(program *ShaderProgram) {
-	threading.RunMain(func() {
+	kirito.QueueBlocking(func() {
 		gl.AttachShader(program.Id(), program.FragmentShader().Id())
 		gl.AttachShader(program.Id(), program.VertexShader().Id())
 		gl.LinkProgram(program.Id())
-	}, true)
+	})
 }
 
 func CompileShader(shader *Shader) {
-	threading.RunMain(func() {
+	kirito.QueueBlocking(func() {
 		strs, _ := gl.Strs(shader.code...)
 
 		gl.ShaderSource(shader.Id(), 1, strs, nil)
 		gl.CompileShader(shader.Id())
-	}, true)
+	})
 }
 
 func VertexAttribPointer(index uint32, size int32, xtype uint32, normalized bool, stride int32, pointer unsafe.Pointer) {
-	threading.RunMain(func() {
+	kirito.QueueBlocking(func() {
 		gl.VertexAttribPointer(index, size, xtype, normalized, stride, pointer)
-	}, true)
+	})
 }
 
 func EnableVertexAttribArray(index uint32) {
-	threading.RunMain(func() {
+	kirito.QueueBlocking(func() {
 		gl.EnableVertexAttribArray(index)
-	}, true)
+	})
 }
 
 func BindVertexArray(arrays uint32) {
-	threading.RunMain(func() {
+	kirito.QueueBlocking(func() {
 		gl.BindVertexArray(arrays)
-	}, true)
+	})
 }
 
 func GenVertexArrays(n int32, arrays *uint32) {
-	threading.RunMain(func() {
+	kirito.QueueBlocking(func() {
 		gl.GenVertexArrays(n, arrays)
-	}, true)
+	})
 }
 
 func BufferData(target uint32, size int, data unsafe.Pointer, usage uint32) {
-	threading.RunMain(func() {
+	kirito.QueueBlocking(func() {
 		gl.BufferData(target, size, data, usage)
-	}, true)
+	})
 }
 
 func BindBuffer(target uint32, buffer uint32) {
-	threading.RunMain(func() {
+	kirito.QueueBlocking(func() {
 		gl.BindBuffer(target, buffer)
-	}, true)
+	})
 }
 
 func GenBuffers(n int32, buffers *uint32) {
-	threading.RunMain(func() {
+	kirito.QueueBlocking(func() {
 		gl.GenBuffers(n, buffers)
-	}, true)
+	})
 }
 
 func DepthFunc(cap uint32) {
-	threading.RunMain(func() {
+	kirito.QueueBlocking(func() {
 		gl.DepthFunc(cap)
-	}, true)
+	})
 }
 
 func Enable(cap uint32) {
-	threading.RunMain(func() {
+	kirito.QueueBlocking(func() {
 		gl.Enable(cap)
-	}, true)
+	})
 }
 
 func ClearColor(red float32, green float32, blue float32, alpha float32) {
-	threading.RunMain(func() {
+	kirito.QueueBlocking(func() {
 		gl.ClearColor(red, green, blue, alpha)
-	}, true)
+	})
 }
 
 func Clear(mask uint32) {
-	threading.RunMain(func() {
+	kirito.QueueBlocking(func() {
 		gl.Clear(mask)
-	}, true)
+	})
 }
 
 func QueueRender(renderable Renderable) {
-	threading.RunMain(renderable.Render)
+	kirito.Queue(renderable.Render)
 }
 
 func Render(renderable Renderable) {
-	threading.RunMain(renderable.Render, true)
+	kirito.QueueBlocking(renderable.Render)
 }
 
 func GLVersion() string {
-	return threading.RunMainResult(func () interface {} {
+	return kirito.Get(func () interface {} {
 		return gl.GoStr(gl.GetString(gl.VERSION))
 	}).(string)
 }

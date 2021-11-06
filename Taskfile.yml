@@ -1,0 +1,31 @@
+version: '3'
+includes:
+  roxxy: ./roxxy/Taskfile.yml
+  kirito: ./kirito/Taskfile.yml
+tasks:
+  pull:
+    run: once
+    desc: Pulls the repo and all submodules
+    cmds:
+      - git pull
+      - task: init-submodules
+      - task: pull-submodules
+  pull-submodules:
+    run: once
+    desc: Pulls all submodules
+    cmds:
+      - task: roxxy:pull
+      - task: kirito:pull
+      - git reset
+      - git commit "./roxxy/" "./kirito/" -m "[TASKFILE]: update submodules"
+  push-submodules:
+    run: once
+    desc: Pushes all submodules
+    cmds:
+      - cd roxxy && git push && cd ..
+      - cd hange && git push && cd ..
+  init-submodules:
+    run: once
+    desc: Runs appropriate git command to initialze submodules
+    cmds:
+      - git submodule init

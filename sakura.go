@@ -1,11 +1,14 @@
 package sakura
 
 import (
-	"github.com/isshoni-soft/sakura/logging"
+	"github.com/go-gl/gl/v4.6-core/gl"
+	"github.com/isshoni-soft/kirito"
+	"github.com/isshoni-soft/roxxy"
 	"github.com/isshoni-soft/sakura/render"
-	"github.com/isshoni-soft/sakura/threading"
 	"github.com/isshoni-soft/sakura/window"
 )
+
+var logger = roxxy.NewLogger("sakura")
 
 var version = Version {
 	Major: 0,
@@ -33,7 +36,17 @@ type Game interface {
 	Initializable
 }
 
+type SimpleGame struct { }
+
+func (sg *SimpleGame) Clear() {
+	render.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+}
+
 var debug = false
+
+func GetLogger() *roxxy.Logger {
+	return logger
+}
 
 func SetDebug(b bool) {
 	debug = b
@@ -44,9 +57,9 @@ func Debug() bool {
 }
 
 func Init(game Game) {
-	logging.GetLogger().Log("Initializing the Sakura Engine v", version.GetVersion())
+	logger.Log("Initializing the Sakura Engine v", version.GetVersion())
 
-	threading.InitMainThread(10, func() {
+	kirito.Run(func() {
 		game.PreInit()
 		window.Init()
 		window.Display()
@@ -58,15 +71,15 @@ func Init(game Game) {
 
 		game.Init()
 
-		logging.GetLogger().Log("launching main ticker...")
+		logger.Log("launching main ticker...")
 
 		go mainTicker(game)
 
-		logging.GetLogger().Log("Finishing initialization!")
+		logger.Log("Finishing initialization!")
 
 		game.PostInit()
 
-		logging.GetLogger().Log("Finished initialization!")
+		logger.Log("Finished initialization!")
 	})
 }
 
@@ -83,8 +96,7 @@ func mainTicker(game Game) {
 }
 
 func Shutdown() {
-	logging.GetLogger().Log("Shutting down Sakura...")
+	logger.Log("Shutting down Sakura...")
 
 	window.Shutdown()
-	threading.ShutdownMainThread()
 }

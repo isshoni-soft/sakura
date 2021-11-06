@@ -14,5 +14,9 @@
 **/build/
 **/.idea/
 
+# Submodules
+kirito/
+roxxy/
+
 # Dependency directories (remove the comment below to include it)
 vendor/

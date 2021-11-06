@@ -2,8 +2,8 @@ package window
 
 import (
 	"github.com/go-gl/glfw/v3.3/glfw"
-	"github.com/isshoni-soft/sakura/logging"
-	"github.com/isshoni-soft/sakura/threading"
+	"github.com/isshoni-soft/kirito"
+	"github.com/isshoni-soft/roxxy"
 )
 
 var title = ""
@@ -15,10 +15,10 @@ var visible = false
 
 var window *glfw.Window
 
-var logger = logging.NewLogger("window", 20)
+var logger = roxxy.NewLogger("sakura|window")
 
 func Init() {
-	threading.RunMain(func() {
+	kirito.QueueBlocking(func() {
 		logger.Log("Initializing GLFW...")
 
 		err := glfw.Init()
@@ -26,14 +26,19 @@ func Init() {
 		if err != nil {
 			panic(err)
 		}
-	}, true)
+	})
 
 	logger.Log("Initialized GLFW v", GLFWVersion())
 }
 
+func GetLogger() *roxxy.Logger {
+	return logger
+}
+
 func Display() {
 	logger.Log("Displaying window...")
-	threading.RunMain(func() {
+
+	kirito.QueueBlocking(func() {
 		if window == nil {
 			logger.Log("Constructing window...")
 			glfw.WindowHint(glfw.Resizable, glfw.False)
@@ -57,7 +62,7 @@ func Display() {
 		window.Show()
 
 		visible = true
-	}, true)
+	})
 }
 
 func SwapBuffers() {
@@ -65,23 +70,23 @@ func SwapBuffers() {
 		return
 	}
 
-	threading.RunMain(func() {
+	kirito.QueueBlocking(func() {
 		window.SwapBuffers()
-	}, true)
+	})
 }
 
 func PollEvents() {
-	threading.RunMain(func() {
+	kirito.QueueBlocking(func() {
 		glfw.PollEvents()
-	}, true)
+	})
 }
 
 func Destroy() {
-	threading.RunMain(func() {
+	kirito.QueueBlocking(func() {
 		window.Destroy()
 
 		visible = false
-	}, true)
+	})
 }
 
 func Shutdown() {
@@ -89,13 +94,13 @@ func Shutdown() {
 
 	ifVisible(func() { Destroy() })
 
-	threading.RunMain(func() { glfw.Terminate() }, true)
+	kirito.QueueBlocking(func() { glfw.Terminate() })
 }
 
 func SetTitle(newTitle string) {
 	title = newTitle
 
-	ifVisible(func() { threading.RunMain(func() { window.SetTitle(newTitle) }, true) })
+	ifVisible(func() { kirito.QueueBlocking(func() { window.SetTitle(newTitle) }) })
 }
 
 func SetWidth(newWidth int) {
@@ -115,7 +120,7 @@ func ShouldClose() bool {
 		return false
 	}
 
-	return threading.RunMainResult(func() interface {} {
+	return kirito.Get(func() interface {} {
 		return window.ShouldClose()
 	}).(bool)
 }
@@ -137,13 +142,13 @@ func Visible() bool {
 }
 
 func GLFWVersion() string {
-	return threading.RunMainResult(func() interface {} {
+	return kirito.Get(func() interface {} {
 		return glfw.GetVersionString()
 	}).(string)
 }
 
 func updateSize() {
-	ifVisible(func() { threading.RunMain(func() { window.SetSize(width, height) }, true) })
+	ifVisible(func() { kirito.QueueBlocking(func() { window.SetSize(width, height) }) })
 }
 
 func ifVisible(f func()) {

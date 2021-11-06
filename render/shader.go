@@ -2,7 +2,7 @@ package render
 
 import (
 	"github.com/go-gl/gl/v4.6-core/gl"
-	"github.com/isshoni-soft/sakura/threading"
+	"github.com/isshoni-soft/kirito"
 )
 
 type Shader struct {
@@ -24,7 +24,7 @@ func (s *Shader) Compiled() bool {
 }
 
 func ShaderFromStrings(xtype uint32, code ...string) *Shader {
-	id := threading.RunMainResult(func () interface {} {
+	id := kirito.Get(func () interface {} {
 		return gl.CreateShader(xtype)
 	}).(uint32)
 
@@ -54,7 +54,7 @@ func (sp *ShaderProgram) Id() uint32 {
 }
 
 func NewShaderProgram(vertex *Shader, fragment *Shader) *ShaderProgram {
-	id := threading.RunMainResult(func() interface {} {
+	id := kirito.Get(func() interface {} {
 		return gl.CreateProgram()
 	}).(uint32)
 

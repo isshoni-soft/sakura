@@ -6,6 +6,8 @@ tasks:
     cmds:
       - git submodule init
       - git submodule update
+      - cd roxxy && git checkout master && cd ..
+      - cd kirito && git checkout master && cd ..
   push-submodules:
     run: once
     desc: Pushes submodules

@@ -3,12 +3,12 @@ package render
 import (
 	"github.com/go-gl/gl/v4.6-core/gl"
 	"github.com/isshoni-soft/kirito"
+	"strings"
 )
 
 type Shader struct {
 	id uint32
 	code []string
-	compiled bool
 }
 
 func (s *Shader) Id() uint32 {
@@ -19,19 +19,24 @@ func (s *Shader) Code() []string {
 	return s.code
 }
 
-func (s *Shader) Compiled() bool {
-	return s.compiled
+func ShaderFromString(xtype uint32, code string) *Shader {
+	codeArr := strings.Split(code, "\n")
+
+	return ShaderFromStrings(xtype, codeArr...)
 }
 
 func ShaderFromStrings(xtype uint32, code ...string) *Shader {
-	id := kirito.Get(func () interface {} {
+	for i, s := range code {
+		code[i] = s + "\n"
+	}
+
+	id := kirito.Get(func() interface {} {
 		return gl.CreateShader(xtype)
 	}).(uint32)
 
 	return &Shader {
 		id: id,
 		code: code,
-		compiled: false,
 	}
 }
 

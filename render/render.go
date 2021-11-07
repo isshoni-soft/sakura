@@ -52,11 +52,47 @@ func LinkShaderProgram(program *ShaderProgram) {
 
 func CompileShader(shader *Shader) {
 	kirito.QueueBlocking(func() {
-		strs, _ := gl.Strs(shader.code...)
+		strs, free := gl.Strs(shader.code...)
 
 		gl.ShaderSource(shader.Id(), 1, strs, nil)
 		gl.CompileShader(shader.Id())
+
+		free()
+
+		if !isShaderCompiled(shader) {
+			logger.Log("Shader failed to compile!")
+			logger.Log(getShaderLogs(shader))
+			panic("Shader failed to compile")
+		}
 	})
+}
+
+func getShaderLogs(shader *Shader) string {
+	var maxLength int32
+
+	gl.GetShaderiv(shader.Id(), gl.INFO_LOG_LENGTH, &maxLength)
+
+	var errorLog uint8
+
+	gl.GetShaderInfoLog(shader.Id(), maxLength, &maxLength, &errorLog)
+
+	return gl.GoStr(&errorLog)
+}
+
+func GetShaderLogs(shader *Shader) string {
+	return kirito.Get(func() interface {} { return getShaderLogs(shader) }).(string)
+}
+
+func isShaderCompiled(shader *Shader) bool {
+	var result int32
+
+	gl.GetShaderiv(shader.Id(), gl.COMPILE_STATUS, &result)
+
+	return result == gl.TRUE
+}
+
+func IsShaderCompiled(shader *Shader) bool {
+	return kirito.Get(func() interface {} { return isShaderCompiled(shader) }).(bool)
 }
 
 func VertexAttribPointer(index uint32, size int32, xtype uint32, normalized bool, stride int32, pointer unsafe.Pointer) {

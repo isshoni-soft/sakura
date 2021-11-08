@@ -1,10 +1,13 @@
 #!/usr/bin/zsh
 
-cd kirito
-git commit -a
-git push
-cd ../roxxy/
-git commit -a
-git push
+function commit() {
+  cd $1 || return
+  pwd
+  git commit -a
+  cd ..
+}
+
+commit kirito
+commit roxxy
 
 exit 0

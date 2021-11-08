@@ -12,7 +12,8 @@ tasks:
     run: once
     desc: Pushes submodules
     cmds:
-      - ./scripts/push-submodules.sh
+      - ./scripts/push-submodule.sh ./kirito
+      - ./scripts/push-submodule.sh ./roxxy
       - git reset
       - git add "kirito"
       - git add "roxxy"

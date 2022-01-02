@@ -1,5 +1,5 @@
 package events
 
 const (
-	INPUT = "Input Event"
+	INPUT = "INPUT"
 )

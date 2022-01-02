@@ -1,5 +1,9 @@
 package event
 
+import (
+	"sort"
+)
+
 type Cancellable interface {
 	Cancelled() bool
 	Cancel()
@@ -11,9 +15,21 @@ type Event struct {
 	Data interface{}
 }
 
+type ListenerPriority int
+
+const (
+	LOWEST ListenerPriority = iota + 1
+	LOW
+	NORMAL
+	HIGH
+	HIGHEST
+	ASAP
+)
+
 type Listener struct {
 	IgnoreCancelled bool
 	Async           bool
+	Priority        ListenerPriority
 	Function        func(event *Event)
 }
 
@@ -41,8 +57,12 @@ func FireEvent(event *Event) {
 
 func RegisterListener(listener Listener, target string) {
 	if value, ok := registered[target]; ok {
-		value = append(value, listener)
+		registered[target] = append(value, listener)
 	} else {
 		registered[target] = []Listener{listener}
 	}
+
+	sort.Slice(registered[target], func(f, s int) bool {
+		return registered[target][f].Priority > registered[target][s].Priority
+	})
 }

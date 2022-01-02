@@ -12,10 +12,10 @@ var logger = roxxy.NewLogger("sakura>")
 
 var shutdownSignal = make(chan bool)
 
-var version = Version {
-	Major: 0,
-	Minor: 0,
-	Patch: 3,
+var version = Version{
+	Major:    0,
+	Minor:    0,
+	Patch:    6,
 	Snapshot: debug,
 }
 
@@ -38,7 +38,7 @@ type Game interface {
 	Initializable
 }
 
-type SimpleGame struct { }
+type SimpleGame struct{}
 
 func (sg *SimpleGame) Clear() {
 	render.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
@@ -83,7 +83,7 @@ func Init(game Game) {
 
 		logger.Log("Finished initialization!")
 		logger.Log("Awaiting shutdown signal...")
-		<- shutdownSignal
+		<-shutdownSignal
 	})
 }
 

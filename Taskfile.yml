@@ -20,3 +20,9 @@ tasks:
       - cmd: git commit -m "[TASKFILE] update submodules"
         ignore_error: true
       - git push
+  pull-submodules:
+    run: once
+    desc: Pulls submodules
+    cmds:
+      - cd roxxy && git pull && cd ..
+      - cd kirito && git pull && cd ..

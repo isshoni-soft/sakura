@@ -4,6 +4,7 @@ import (
 	"github.com/go-gl/glfw/v3.3/glfw"
 	"github.com/isshoni-soft/kirito"
 	"github.com/isshoni-soft/roxxy"
+	"github.com/isshoni-soft/sakura/input"
 )
 
 var title = ""
@@ -49,6 +50,7 @@ func Display() {
 
 			var err error
 			window, err = glfw.CreateWindow(Width(), Height(), Title(), nil, nil)
+			window.SetKeyCallback(input.GLFWCallback)
 
 			if err != nil {
 				panic(err)
@@ -120,7 +122,7 @@ func ShouldClose() bool {
 		return false
 	}
 
-	return kirito.Get(func() interface {} {
+	return kirito.Get(func() interface{} {
 		return window.ShouldClose()
 	}).(bool)
 }
@@ -142,7 +144,7 @@ func Visible() bool {
 }
 
 func GLFWVersion() string {
-	return kirito.Get(func() interface {} {
+	return kirito.Get(func() interface{} {
 		return glfw.GetVersionString()
 	}).(string)
 }

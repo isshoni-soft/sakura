@@ -13,6 +13,7 @@ type Event struct {
 
 type Listener struct {
 	IgnoreCancelled bool
+	Async           bool
 	Function        func(event *Event)
 }
 
@@ -30,7 +31,11 @@ func FireEvent(event *Event) {
 			}
 		}
 
-		f.Function(event)
+		if f.Async {
+			go f.Function(event)
+		} else {
+			f.Function(event)
+		}
 	}
 }
 

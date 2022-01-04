@@ -13,8 +13,6 @@ func (t *DeltaTicker) Delta() uint64 {
 		p := time.Now()
 
 		t.previous = &p
-		
-		return 0
 	} else {
 		t.previous = t.current
 	}

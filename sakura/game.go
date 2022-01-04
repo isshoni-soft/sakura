@@ -1,12 +1,17 @@
 package sakura
 
 import (
-	"github.com/go-gl/gl/v4.6-core/gl"
 	"github.com/isshoni-soft/kirito"
 	"github.com/isshoni-soft/roxxy"
 	"github.com/isshoni-soft/sakura/render"
 	"github.com/isshoni-soft/sakura/window"
+	"math"
+	"time"
 )
+
+var gameSingleton *Game
+
+var debug = false
 
 var logger = roxxy.NewLogger("sakura>")
 
@@ -15,7 +20,7 @@ var shutdownSignal = make(chan bool)
 var version = Version{
 	Major:    0,
 	Minor:    0,
-	Patch:    6,
+	Patch:    7,
 	Snapshot: debug,
 }
 
@@ -32,22 +37,25 @@ type Tickable interface {
 	Tick()
 }
 
-type Game interface {
+type Game struct {
 	Tickable
 	render.Renderer
 	Initializable
+
+	GameData *interface{}
+	Version  Version
+	Logger   roxxy.Logger
+
+	renderDelta *DeltaTicker
+	logicDelta  *DeltaTicker
 }
-
-type SimpleGame struct{}
-
-func (sg *SimpleGame) Clear() {
-	render.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
-}
-
-var debug = false
 
 func GetLogger() *roxxy.Logger {
 	return logger
+}
+
+func GetGame() *Game {
+	return gameSingleton
 }
 
 func SetDebug(b bool) {
@@ -58,7 +66,15 @@ func Debug() bool {
 	return debug
 }
 
-func Init(game Game) {
+func Init(game *Game) {
+	gameSingleton = game
+	gameSingleton.renderDelta = &DeltaTicker{
+		Function: renderTick,
+	}
+	gameSingleton.logicDelta = &DeltaTicker{
+		Function: logicTick,
+	}
+
 	logger.Log("Initializing the Sakura Engine v", version.GetVersion())
 
 	kirito.Run(func() {
@@ -75,7 +91,7 @@ func Init(game Game) {
 
 		logger.Log("launching main ticker...")
 
-		go mainTicker(game)
+		// go mainTicker(game)
 
 		logger.Log("Finishing initialization!")
 
@@ -87,15 +103,26 @@ func Init(game Game) {
 	})
 }
 
-func mainTicker(game Game) {
+func renderTick(game Game, ticker DeltaTicker) {
 	defer Shutdown()
 
 	for !window.ShouldClose() {
-		game.Tick()
 		game.Clear()
 		game.Draw()
 		window.SwapBuffers()
 		window.PollEvents()
+	}
+}
+
+func logicTick(game Game, ticker DeltaTicker) {
+	rate := 20
+	done := 0
+	goal := 1 * rate
+	start := time.Now()
+
+	for !window.ShouldClose() {
+		target := math.Floor(float64((time.Now().UnixMilli() - start.UnixMilli()) * int64(rate)))
+		game.Tick()
 	}
 }
 

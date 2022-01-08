@@ -3,12 +3,29 @@ package sakura
 import "time"
 
 type DeltaTicker struct {
-	Function func(game Game, ticker DeltaTicker)
+	Function func(game *Game, ticker *DeltaTicker)
+	Defer    func()
+
 	previous *time.Time
 	current  *time.Time
+	delta    uint64
 }
 
-func (t *DeltaTicker) Delta() uint64 {
+func (t *DeltaTicker) Run(game *Game) {
+	go func() {
+		defer t.Defer()
+
+		for Running() {
+			t.Function(game, t)
+		}
+	}()
+}
+
+func (t *DeltaTicker) GetDelta() uint64 {
+	return t.delta
+}
+
+func (t *DeltaTicker) RecalculateDelta() uint64 {
 	if t.previous == nil {
 		p := time.Now()
 
@@ -20,6 +37,7 @@ func (t *DeltaTicker) Delta() uint64 {
 	c := time.Now()
 
 	t.current = &c
+	t.delta = uint64(c.UnixMilli() - t.previous.UnixMilli())
 
-	return uint64(c.UnixMilli() - t.previous.UnixMilli())
+	return t.delta
 }

@@ -1,5 +1,7 @@
 package events
 
 const (
-	INPUT = "INPUT"
+	INPUT              = "INPUT"
+	ENGINE_LOGIC_TICK  = "ENGINE_LOGIC_TICK"
+	ENGINE_RENDER_TICK = "ENGINE_RENDER_TICK"
 )

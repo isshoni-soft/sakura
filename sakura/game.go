@@ -3,15 +3,16 @@ package sakura
 import (
 	"github.com/isshoni-soft/kirito"
 	"github.com/isshoni-soft/roxxy"
+	"github.com/isshoni-soft/sakura/event"
+	"github.com/isshoni-soft/sakura/event/events"
 	"github.com/isshoni-soft/sakura/render"
 	"github.com/isshoni-soft/sakura/window"
-	"math"
-	"time"
 )
 
-var gameSingleton *Game
+var game *Game
 
 var debug = false
+var running = true
 
 var logger = roxxy.NewLogger("sakura>")
 
@@ -20,7 +21,7 @@ var shutdownSignal = make(chan bool)
 var version = Version{
 	Major:    0,
 	Minor:    0,
-	Patch:    7,
+	Patch:    8,
 	Snapshot: debug,
 }
 
@@ -37,17 +38,27 @@ type Tickable interface {
 	Tick()
 }
 
-type Game struct {
+type GameLogic interface {
 	Tickable
 	render.Renderer
 	Initializable
+}
 
-	GameData *interface{}
-	Version  Version
-	Logger   roxxy.Logger
+type Game struct {
+	Logic   GameLogic
+	Version Version
+	Logger  *roxxy.Logger
 
 	renderDelta *DeltaTicker
 	logicDelta  *DeltaTicker
+}
+
+func (g *Game) RenderDelta() *DeltaTicker {
+	return g.renderDelta
+}
+
+func (g *Game) LogicDelta() *DeltaTicker {
+	return g.logicDelta
 }
 
 func GetLogger() *roxxy.Logger {
@@ -55,7 +66,7 @@ func GetLogger() *roxxy.Logger {
 }
 
 func GetGame() *Game {
-	return gameSingleton
+	return game
 }
 
 func SetDebug(b bool) {
@@ -66,19 +77,26 @@ func Debug() bool {
 	return debug
 }
 
-func Init(game *Game) {
-	gameSingleton = game
-	gameSingleton.renderDelta = &DeltaTicker{
+func Running() bool {
+	return !window.ShouldClose() && running
+}
+
+func Init(g Game) {
+	game = &g
+
+	game.renderDelta = &DeltaTicker{
 		Function: renderTick,
+		Defer:    Shutdown,
 	}
-	gameSingleton.logicDelta = &DeltaTicker{
+	game.logicDelta = &DeltaTicker{
 		Function: logicTick,
+		Defer:    func() {},
 	}
 
 	logger.Log("Initializing the Sakura Engine v", version.GetVersion())
 
 	kirito.Run(func() {
-		game.PreInit()
+		game.Logic.PreInit()
 		window.Init()
 		window.Display()
 		render.Init()
@@ -87,15 +105,16 @@ func Init(game *Game) {
 			window.SetTitle(window.Title() + " (GL v" + render.GLVersion() + ")")
 		}
 
-		game.Init()
+		game.Logic.Init()
 
 		logger.Log("launching main ticker...")
 
-		// go mainTicker(game)
+		game.logicDelta.Run(game)
+		game.renderDelta.Run(game)
 
 		logger.Log("Finishing initialization!")
 
-		game.PostInit()
+		game.Logic.PostInit()
 
 		logger.Log("Finished initialization!")
 		logger.Log("Awaiting shutdown signal...")
@@ -103,30 +122,29 @@ func Init(game *Game) {
 	})
 }
 
-func renderTick(game Game, ticker DeltaTicker) {
-	defer Shutdown()
-
-	for !window.ShouldClose() {
-		game.Clear()
-		game.Draw()
-		window.SwapBuffers()
-		window.PollEvents()
-	}
+func renderTick(game *Game, ticker *DeltaTicker) {
+	ticker.RecalculateDelta()
+	event.FireEvent(&event.Event{
+		Name: events.ENGINE_RENDER_TICK,
+		Data: nil,
+	})
+	game.Logic.Clear()
+	game.Logic.Draw()
+	window.SwapBuffers()
+	window.PollEvents()
 }
 
-func logicTick(game Game, ticker DeltaTicker) {
-	rate := 20
-	done := 0
-	goal := 1 * rate
-	start := time.Now()
-
-	for !window.ShouldClose() {
-		target := math.Floor(float64((time.Now().UnixMilli() - start.UnixMilli()) * int64(rate)))
-		game.Tick()
-	}
+func logicTick(game *Game, ticker *DeltaTicker) {
+	ticker.RecalculateDelta()
+	event.FireEvent(&event.Event{
+		Name: events.ENGINE_LOGIC_TICK,
+		Data: nil,
+	})
+	game.Logic.Tick()
 }
 
 func Shutdown() {
+	running = false
 	logger.Log("Shutting down Sakura...")
 
 	window.Shutdown()

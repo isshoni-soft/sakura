@@ -7,7 +7,7 @@ import (
 )
 
 type Shader struct {
-	id uint32
+	id   uint32
 	code []string
 }
 
@@ -30,19 +30,19 @@ func ShaderFromStrings(xtype uint32, code ...string) *Shader {
 		code[i] = s + "\n"
 	}
 
-	id := kirito.Get(func() interface {} {
+	id := kirito.Get(func() uint32 {
 		return gl.CreateShader(xtype)
-	}).(uint32)
+	})
 
-	return &Shader {
-		id: id,
+	return &Shader{
+		id:   id,
 		code: code,
 	}
 }
 
 type ShaderProgram struct {
-	id uint32
-	vertex *Shader
+	id       uint32
+	vertex   *Shader
 	fragment *Shader
 }
 
@@ -59,13 +59,13 @@ func (sp *ShaderProgram) Id() uint32 {
 }
 
 func NewShaderProgram(vertex *Shader, fragment *Shader) *ShaderProgram {
-	id := kirito.Get(func() interface {} {
+	id := kirito.Get(func() uint32 {
 		return gl.CreateProgram()
-	}).(uint32)
+	})
 
-	return &ShaderProgram {
-		id: id,
-		vertex: vertex,
+	return &ShaderProgram{
+		id:       id,
+		vertex:   vertex,
 		fragment: fragment,
 	}
 }

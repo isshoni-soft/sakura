@@ -122,9 +122,9 @@ func ShouldClose() bool {
 		return false
 	}
 
-	return kirito.Get(func() interface{} {
+	return kirito.Get(func() bool {
 		return window.ShouldClose()
-	}).(bool)
+	})
 }
 
 func Title() string {
@@ -144,9 +144,9 @@ func Visible() bool {
 }
 
 func GLFWVersion() string {
-	return kirito.Get(func() interface{} {
+	return kirito.Get(func() string {
 		return glfw.GetVersionString()
-	}).(string)
+	})
 }
 
 func updateSize() {

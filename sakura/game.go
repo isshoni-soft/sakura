@@ -2,7 +2,7 @@ package sakura
 
 import (
 	"github.com/isshoni-soft/kirito"
-	"github.com/isshoni-soft/roxxy"
+	"github.com/isshoni-soft/roxxy/v1"
 	"github.com/isshoni-soft/sakura/event"
 	"github.com/isshoni-soft/sakura/event/events"
 	"github.com/isshoni-soft/sakura/render"
@@ -14,7 +14,7 @@ var game *Game
 var debug = false
 var running = true
 
-var logger = roxxy.NewLogger("sakura>")
+var logger = roxxy_v1.NewLogger("sakura>")
 
 var shutdownSignal = make(chan bool)
 
@@ -47,7 +47,7 @@ type GameLogic interface {
 type Game struct {
 	Logic   GameLogic
 	Version Version
-	Logger  *roxxy.Logger
+	Logger  *roxxy_v1.Logger
 
 	renderDelta *DeltaTicker
 	logicDelta  *DeltaTicker
@@ -61,7 +61,7 @@ func (g *Game) LogicDelta() *DeltaTicker {
 	return g.logicDelta
 }
 
-func GetLogger() *roxxy.Logger {
+func GetLogger() *roxxy_v1.Logger {
 	return logger
 }
 

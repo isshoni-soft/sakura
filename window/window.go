@@ -3,7 +3,7 @@ package window
 import (
 	"github.com/go-gl/glfw/v3.3/glfw"
 	"github.com/isshoni-soft/kirito"
-	"github.com/isshoni-soft/roxxy"
+	"github.com/isshoni-soft/roxxy/v1"
 	"github.com/isshoni-soft/sakura/input"
 )
 
@@ -16,7 +16,7 @@ var visible = false
 
 var window *glfw.Window
 
-var logger = roxxy.NewLogger("sakura|window>")
+var logger = roxxy_v1.NewLogger("sakura|window>")
 
 func Init() {
 	kirito.QueueBlocking(func() {
@@ -32,7 +32,7 @@ func Init() {
 	logger.Log("Initialized GLFW v", GLFWVersion())
 }
 
-func GetLogger() *roxxy.Logger {
+func GetLogger() *roxxy_v1.Logger {
 	return logger
 }
 

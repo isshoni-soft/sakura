@@ -3,11 +3,11 @@ package render
 import (
 	"github.com/go-gl/gl/v4.6-core/gl"
 	"github.com/isshoni-soft/kirito"
-	"github.com/isshoni-soft/roxxy"
+	"github.com/isshoni-soft/roxxy/v1"
 	"unsafe"
 )
 
-var logger = roxxy.NewLogger("sakura|renderer>")
+var logger = roxxy_v1.NewLogger("sakura|renderer>")
 
 type Renderer interface {
 	Draw()
@@ -80,7 +80,7 @@ func getShaderLogs(shader *Shader) string {
 }
 
 func GetShaderLogs(shader *Shader) string {
-	return kirito.Get(func() interface {} { return getShaderLogs(shader) }).(string)
+	return kirito.Get(func() interface{} { return getShaderLogs(shader) }).(string)
 }
 
 func isShaderCompiled(shader *Shader) bool {
@@ -92,7 +92,7 @@ func isShaderCompiled(shader *Shader) bool {
 }
 
 func IsShaderCompiled(shader *Shader) bool {
-	return kirito.Get(func() interface {} { return isShaderCompiled(shader) }).(bool)
+	return kirito.Get(func() interface{} { return isShaderCompiled(shader) }).(bool)
 }
 
 func VertexAttribPointer(index uint32, size int32, xtype uint32, normalized bool, stride int32, pointer unsafe.Pointer) {
@@ -170,7 +170,7 @@ func Render(renderable Renderable) {
 }
 
 func GLVersion() string {
-	return kirito.Get(func () interface {} {
+	return kirito.Get(func() interface{} {
 		return gl.GoStr(gl.GetString(gl.VERSION))
 	}).(string)
 }
